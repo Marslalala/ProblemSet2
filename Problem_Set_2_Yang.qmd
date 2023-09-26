@@ -1,0 +1,658 @@
+---
+title: "Problem_Set_2_Yang"
+author: "Yang Han"
+format: 
+  html:
+    embed-resources: true
+    code-fold: true
+    code-summary: "Show the code"
+    error: false
+editor: visual
+---
+
+Link to Github repository:
+
+***https://github.com/Marslalala/ProblemSet2.git***
+
+# Question 1
+
+## Part a
+
+-   Create the function by using a loop over the die rolls.
+
+```{r}
+#'  Create the function by using a loop over the die rolls.
+#'  
+#'  Identify cost, winning/losing rolling score and the single 6-sided die
+#'  Generate the random rolling point by using function sample()
+#'  Check the rolling point and give a score in each circumstance
+#'  @param n an integer
+#'  @return overall winning/losing money amount
+play_dice_v1 <- function(n) {
+  # Identify cost, winning/losing rolling score and the single 6-sided die
+  score <- 0
+  cost <- 2
+  die <- c(1, 2, 3, 4, 5, 6)
+  
+  # Create the loop
+  for(i in 1:n) {
+    # Generate the random rolling point by using function sample()
+    point <- sample(die, 1, replace = TRUE)
+    # Check the rolling point and give a score in each circumstance
+    if (point == 2) {
+      score <- score - cost + 2
+    } else if(point == 4) {
+      score <- score - cost + 4
+    } else if(point == 6) {
+      score <- score - cost + 6
+    } else {
+      score <- score - cost
+    }
+  }
+  
+  return(score)
+}
+```
+
+-   Create the function by using built-in R vectorized functions.
+
+```{r}
+play_dice_v2 <- function(n) {
+  #' Identify the cost and the single 6-sided die
+  #' 
+  #' Generate the random rolling point by using function sample()
+  #' Then calculate the score
+  #' @param n an integer
+  #' @return overall winning/losing money amount
+  cost <- 2
+  die <- c(1, 2, 3, 4, 5, 6)
+  
+  # Generate the random rolling point
+  point <- sample(die, n, replace = TRUE)
+  
+  # Calculate the score
+  score <- length(which(point == 2)) * 2 + length(which(point == 4)) * 4 + length(which(point == 6)) *
+    6 - cost * n
+  
+  return(score)
+}
+```
+
+-   Create the function by collapsing the die rolls into a single table().
+
+```{r}
+play_dice_v3 <- function(n) {
+  #' Identify the cost and the single 6-sided die
+  #' 
+  #' Generate the random rolling point by using function sample()
+  #' Collapsing the rolling points into a table to display the frequency of each roll point
+  #' Using factor() to fix the indices of the table
+  #' Finally, calculate the score
+  #' @param n an integer
+  #' @return overall winning/losing money amount
+  cost <- 2
+  die <- c(1, 2, 3, 4, 5, 6)
+  
+  # Generate the random rolling point by using function sample()
+  point <- sample(die, n, replace = TRUE)
+  
+  # Collapsing the rolling points into a table
+  freq_table <- table(factor(point, levels = 1:6))  # Using factor() to fix the indices of the table
+  
+  # Calculate the score
+  score <- sum(freq_table[c(2, 4, 6)] * c(2, 4, 6)) - n * cost
+  
+  return(score)
+}
+```
+
+-   Create the function by using one of the "apply" functions.
+
+```{r}
+play_dice_v4 <- function(n) {
+  #' Identify the cost and the single 6-sided die
+  #' 
+  #' Generate the random rolling point by using function sample()
+  #' Calculate the score by using an apply function
+  #' @param n an integer
+  #' @return overall winning/losing money amount
+  cost <- 2
+  die <- c(1, 2, 3, 4, 5, 6)
+  
+  # Generate the random rolling point by using function sample()
+  point <- sample(die, n, replace = TRUE)
+  point_l <- list(point)
+  
+  # Calculate the score
+  score <- sapply(point_l, function(x) {
+    return(length(which(x == 2)) * 2 + length(which(x == 4)) * 4 + 
+             length(which(x == 6)) * 6 - cost * n)
+    
+  })
+  return(score)
+  
+}
+```
+
+## Part b
+
+Run each examples for 5 times to prove the functions work.
+
+```{r}
+small_results <- c()
+for (i in 1:5) {
+  small_results <- c(small_results, play_dice_v1(3), play_dice_v2(3),
+                     play_dice_v3(3), play_dice_v4(3))
+  
+}
+
+large_results <- c()
+for (i in 1:5) {
+  large_results <- c(large_results, play_dice_v1(3000), play_dice_v2(3000),
+                     play_dice_v3(3000), play_dice_v4(3000))
+}
+
+print(small_results)
+print(large_results)
+
+```
+
+## Part c
+
+Set a random seed and run each version few times to see whether the results are the same. First display the results for the input 3.
+
+```{r}
+s_m_results <- c()
+set.seed(7)
+for (i in 1:5) {
+  s_m_results <- c(s_m_results, play_dice_v1(3))
+}
+set.seed(7)
+for (i in 1:5) {
+  s_m_results <- c(s_m_results, play_dice_v2(3))
+}
+set.seed(7)
+for (i in 1:5) {
+  s_m_results <- c(s_m_results, play_dice_v3(3))
+}
+set.seed(7)
+for (i in 1:5) {
+  s_m_results <- c(s_m_results, play_dice_v4(3))
+}
+small_matrix_results <- matrix(s_m_results, nrow = 5)
+colnames(small_matrix_results) <- c('version 1', 'version 2', 'version 3', 'version 4')
+print(small_matrix_results)
+```
+
+Now display the results for the input 3000.
+
+```{r}
+l_m_results <- c()
+set.seed(7)
+for (i in 1:5) {
+  l_m_results <- c(l_m_results, play_dice_v1(3000))
+}
+set.seed(7)
+for (i in 1:5) {
+  l_m_results <- c(l_m_results, play_dice_v2(3000))
+}
+set.seed(7)
+for (i in 1:5) {
+  l_m_results <- c(l_m_results, play_dice_v3(3000))
+}
+set.seed(7)
+for (i in 1:5) {
+  l_m_results <- c(l_m_results, play_dice_v4(3000))
+}
+large_matrix_results <- matrix(l_m_results, nrow = 5)
+colnames(large_matrix_results) <- c('version 1', 'version 2', 'version 3', 'version 4')
+print(large_matrix_results)
+```
+
+We can see that both inputs give exactly the same results from a random seed.
+
+## Part d
+
+Install and load the package first, then run the function for 4 versions of my functions.
+
+```{r}
+#| warning: false
+library(microbenchmark)
+microbenchmark(play_dice_v1(100), play_dice_v2(100), 
+               play_dice_v3(100), play_dice_v4(100))
+```
+
+When the input is low, using built-in vectorized functions is the fastest way, then is using apply(). the execution time of these two methods are closer compare with the other two methods. The slowest way is using a loop, which the execution time is far greater other methods.
+
+```{r}
+microbenchmark(play_dice_v1(10000), play_dice_v2(10000), 
+               play_dice_v3(10000), play_dice_v4(10000))
+```
+
+When the input is high, the rank of operation speed does not change, but the difference between collapsing a matrix and using a loop increases, which means, despite the inefficient of collapsing a matrix, it is at least better than using a loop.
+
+## Part e
+
+I believe this is a fair game. We can prove this by a Monte Carlo simulation. The expected value of income should equals zero, so that the game is fair. We can use a Monte Carlo simulation to check whether the expected amount of money is zero or very close to zero in the long run.
+
+Set a trail first.
+
+```{r}
+trail <- c(rep.int(3000, 10000))
+```
+
+Run the version 2 function to obtain the simulation.
+
+```{r}
+sim <- sapply(trail, play_dice_v2)
+```
+
+Show the distribution we drew with a histogram
+
+```{r}
+hist(sim, breaks = 200, probability = TRUE)
+```
+
+By CLT, we can say that our simulation has a normal distribution with zero mean. We can see the pattern from the graph. Carry out an one-sample t-test to see whether the true mean is zero.
+
+```{r}
+t.test(sim)
+```
+
+Since the p-value is large enough, we could say it is statistically significant. So the true mean is zero. This proves that the game is fair.
+
+# Question2
+
+## Part a
+
+Load the data.
+
+```{r}
+car_data <- read.csv('cars.csv')
+```
+
+Rename the data.
+
+```{r}
+col_names <- c('dim_hei', 'dim_len', 'dim_wid', 'eng_driveline', 'eng_type', 'eng_hyb', 'eng_gearnum', 'eng_trans', 'fuel_city', 'fuel_type', 'fuel_highway', 'id_class', 'uid', 'id_make', 'id_myear', 'id_ryear', 'enstat_horsep', 'enstat_tor')
+colnames(car_data) <- col_names
+head(car_data)
+```
+
+## Part b
+
+Modify the data to restrict the fuel type.
+
+```{r}
+car_gasoline <- car_data[car_data$fuel_type == 'Gasoline',]
+```
+
+## Part c
+
+Fit the model by instructions and generate a summary of the model.
+
+```{r}
+#| code-fold: show
+car_gasoline$id_ryear <- as.factor(car_gasoline$id_ryear)
+car_model <- lm(fuel_highway ~ enstat_horsep + enstat_tor + dim_hei + dim_len + dim_wid + 
+                id_ryear, data = car_gasoline)
+summary(car_model)
+```
+
+When all other variables in the model held constant, we can see from the summary that the predictor horsepower is positively related with the MPG on the highway as the estimate of the coefficient is positive. To be more explicitly, as horsepower increases, MPG on the highway is expected to increase. The estimated coefficient is 0.016, which means when horsepower increases for 1 unit, the MPG on the highway would increase for 0.016. An important thing should be noticed, which is the value is for cars released in 2009(with this estimated intercept). When consider other releasing years, the estimated intercept might change in this model. The p-value for the estimated coefficient of horsepower is 7.96e-13 which is very small. This implies that this relationship between MPG on the highway and horsepower is statistically significant. They are very likely to have this positive relationship.
+
+## Part d
+
+Generate a new model with interactions between horsepower and torque, then give a summary.
+
+```{r}
+#| code-fold: show
+car_model2 <- lm(fuel_highway ~ enstat_horsep + enstat_tor + enstat_horsep:enstat_tor + dim_hei
+                 + dim_len + dim_wid + id_ryear, data = car_gasoline)
+summary(car_model2)
+```
+
+Firstly, plot histograms of horsepower and torque to determine which values we should choose for the interaction plot.
+
+```{r}
+hist(car_gasoline$enstat_horsep)
+hist(car_gasoline$enstat_tor)
+```
+
+From the graphs above , we know that both horsepower and torque are gathered from 100 to 450, so we can take values 100, 275 and 450.
+
+```{r}
+chosen_value <- c(100, 275, 450)
+```
+
+From the summary we can tell that there does have an interaction between horsepower and torque. Now generate an interaction plot to see the relationship.
+
+```{r}
+#| code-fold: show
+#| warning: false
+library(interactions)
+interact_plot(car_model2, pred = enstat_horsep, modx = enstat_tor, modx.values = chosen_value, 
+              data = car_gasoline, at = list(car_gasoline$id_ryear == 2010), 
+              x.label = 'horsepower', y.label = 'highway mpg', legend.main = 'torque')
+```
+
+## Part e
+
+Design a matrix to calculate beta_hat and create response matrix.
+
+```{r}
+X <- model.matrix(fuel_highway ~ enstat_horsep * enstat_tor + enstat_horsep + enstat_tor +
+                  dim_len + dim_wid + dim_hei + as.factor(id_ryear), data = car_gasoline)
+Y <- car_gasoline$fuel_highway
+```
+
+Calculate the coefficient estimates manually.
+
+```{r}
+#| code-fold: show
+beta_hat <- solve(t(X) %*% X) %*% t(X) %*% Y
+print(car_model2$coefficients)
+print(beta_hat)
+```
+
+We can see the results are exactly the same as in the lm() given.
+
+# Question 3
+
+## Part a
+
+. \* Import the data first
+
+. import delimited cars.csv
+
+(encoding automatically selected: ISO-8859-1)
+
+(18 vars, 5,076 obs)
+
+. \* Rename the variables
+
+. rename dimensionsheight dim_hei
+
+. rename dimensionslength dim_len
+
+. rename dimensionswidth dim_wid
+
+. rename engineinformationdriveline eng_driveline
+
+. rename engineinformationenginetype eng_type
+
+. rename engineinformationhybrid eng_hyb
+
+. rename engineinformationnumberofforward eng_gearnum
+
+. rename engineinformationtransmission eng_trans
+
+. rename fuelinformationcitympg fuel_city
+
+. rename fuelinformationfueltype fuel_type
+
+. rename fuelinformationhighwaympg fuel_highway
+
+. rename identificationclassification id_class
+
+. rename identificationid uid
+
+. rename identificationmake id_make
+
+. rename identificationmodelyear id_myear
+
+. rename identificationyear id_ryear
+
+. rename engineinformationenginestatistic enstat_horsep
+
+. rename v18 enstat_tor
+
+.
+
+.
+
+##  Part b
+
+. \* Create another data set which restrict the fuel_type to "Gasoline"
+
+.
+
+. keep if fuel_type == "Gasoline"
+
+(485 observations deleted)
+
+. save cars_gasoline
+
+file cars_gasoline.dta saved
+
+. browse
+
+.
+
+.
+
+## Part c
+
+\* Fit the model by instructions
+
+. regress fuel_highway enstat_horsep enstat_tor dim_hei dim_len dim_wid i.id_ryea
+
+\> r
+
+Source \| SS df MS Number of obs = 4,591
+
+\-\-\-\-\-\-\-\-\-\-\-\--+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-- F(8, 4582) = 413.35
+
+Model \| 70043.6695 8 8755.45869 Prob \> F = 0.0000
+
+Residual \| 97055.298 4,582 21.1818634 R-squared = 0.4192
+
+\-\-\-\-\-\-\-\-\-\-\-\--+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-- Adj R-squared = 0.4182
+
+Total \| 167098.968 4,590 36.4050038 Root MSE = 4.6024
+
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--
+
+fuel_highway \| Coefficient Std. err. t P\>\|t\| \[95% conf. interval\]
+
+\-\-\-\-\-\-\-\-\-\-\-\-\--+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--
+
+enstat_horsep \| .0163556 .0022772 7.18 0.000 .0118913 .02082
+
+enstat_tor \| -.0507425 .002203 -23.03 0.000 -.0550614 -.0464236
+
+dim_hei \| .0099079 .0011267 8.79 0.000 .007699 .0121168
+
+dim_len \| .001729 .0008836 1.96 0.050 -3.36e-06 .0034613
+
+dim_wid \| -.0003343 .0009045 -0.37 0.712 -.0021075 .0014388
+
+\|
+
+id_ryear \|
+
+2010 \| -.4539681 .6768246 -0.67 0.502 -1.78087 .8729342
+
+2011 \| .1711016 .6757043 0.25 0.800 -1.153604 1.495808
+
+2012 \| 1.302928 .6810076 1.91 0.056 -.0321751 2.638031
+
+\|
+
+\_cons \| 32.29266 .7225982 44.69 0.000 30.87602 33.7093
+
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--
+
+. \* When all other variables in the model held constant, we can see from the
+
+. \* summary that the predictor horsepower is positively related with the MPG on
+
+. \* the highway as the estimate of the coefficient is positive. To be more
+
+. \* explicitly, as horsepower increases, MPG on the highway is expected to
+
+. \* increase. The estimated coefficient is 0.016, which means when horsepower
+
+. \* increases for 1 unit, the MPG on the highway would increase for 0.016. An
+
+. \* important thing should be noticed, which is the value is for cars released i
+
+\> n
+
+. \* 2009(with this estimated intercept). When consider other releasing years,
+
+. \* the estimated intercept might change in this model. The p-value for the
+
+. \* estimated coefficient of horsepower is 7.96e-13 which is very small. This
+
+. \* implies that this relationship between MPG on the highway and horsepower is
+
+. \* statistically significant. They are very likely to have this positive
+
+. \* relationship.
+
+.
+
+.
+
+## Part d
+
+.
+
+. \* Generate a new model with interactions between horsepower and torque
+
+. regress fuel_highway c.enstat_horsep##c.enstat_tor dim_hei dim_len dim_wid i.id
+
+\> \_ryear
+
+Source \| SS df MS Number of obs = 4,591
+
+\-\-\-\-\-\-\-\-\-\-\-\--+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-- F(9, 4581) = 480.07
+
+Model \| 81105.8715 9 9011.76351 Prob \> F = 0.0000
+
+Residual \| 85993.096 4,581 18.7716865 R-squared = 0.4854
+
+\-\-\-\-\-\-\-\-\-\-\-\--+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-- Adj R-squared = 0.4844
+
+Total \| 167098.968 4,590 36.4050038 Root MSE = 4.3326
+
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--
+
+fuel_highway \| Coefficient Std. err. t P\>\|t\| \[95% conf. interval\]
+
+\-\-\-\-\-\-\-\-\-\-\-\-\-\--+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--
+
+enstat_horsep \| -.0166633 .0025388 -6.56 0.000 -.0216406 -.011686
+
+enstat_tor \| -.0860593 .0025333 -33.97 0.000 -.0910257 -.0810928
+
+\|
+
+c. \|
+
+enstat_horsep#\|
+
+c.enstat_tor \| .0001124 4.63e-06 24.28 0.000 .0001033 .0001214
+
+\|
+
+dim_hei \| .0065604 .0010696 6.13 0.000 .0044634 .0086573
+
+dim_len \| .0017767 .0008318 2.14 0.033 .0001459 .0034075
+
+dim_wid \| -.0011694 .0008521 -1.37 0.170 -.00284 .0005011
+
+\|
+
+id_ryear \|
+
+2010 \| -.5627858 .6371716 -0.88 0.377 -1.811949 .6863777
+
+2011 \| .0725356 .6361142 0.11 0.909 -1.174555 1.319626
+
+2012 \| 1.197033 .6411085 1.87 0.062 -.0598488 2.453915
+
+\|
+
+\_cons \| 42.18795 .7930274 53.20 0.000 40.63323 43.74266
+
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--
+
+. \* Now choose values for horsepower and torque
+
+. global lower = 100
+
+. global median = 275
+
+. global higher = 450
+
+. \* Then draw the interaction plot
+
+. margins, at(enstat_horsep=(100(3)450) enstat_tor=(\$lower, \$median, \$higher))
+
+Predictive margins Number of obs = 4,591
+
+Model VCE: OLS
+
+Expression: Linear prediction, predict()
+
+1.\_at: enstat_horsep = 100
+
+enstat_tor = 100
+
+2.\_at: enstat_horsep = 100
+
+enstat_tor = 275
+
+, ... ,
+
+350.\_at: enstat_horsep = 448
+
+enstat_tor = 275
+
+351.\_at: enstat_horsep = 448
+
+enstat_tor = 450
+
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--
+
+\| Delta-method
+
+\| Margin std. err. t P\>\|t\| \[95% conf. interval\]
+
+\-\-\-\-\-\-\-\-\-\-\-\--+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--
+
+\_at \|
+
+1 \| 34.19066 .1923479 177.75 0.000 33.81356 34.56775
+
+2 \| 21.09653 .3810067 55.37 0.000 20.34957 21.84348
+
+3 \| 8.002395 .7596302 10.53 0.000 6.513154 9.491636
+
+4 \| 34.17437 .1894697 180.37 0.000 33.80292 34.54582
+
+5 \| 21.13923 .3747112 56.41 0.000 20.40461 21.87384
+
+, ... ,
+
+347 \| 26.00752 .3757288 69.22 0.000 25.27091 26.74413
+
+348 \| 19.69693 .1425787 138.15 0.000 19.4174 19.97645
+
+349 \| 32.30183 .746948 43.25 0.000 30.83745 33.76621
+
+350 \| 26.05022 .3820249 68.19 0.000 25.30127 26.79918
+
+351 \| 19.79862 .144328 137.18 0.000 19.51567 20.08157
+
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--
+
+. marginsplot
+
+Variables that uniquely identify margins: enstat_horsep enstat_tor
+
+.
+
+![](images/d22193b722418e14cc8f0d2970b95a4.png)
